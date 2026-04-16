@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Soft black-on-white text selection */
+  ::selection {
+    background-color: rgba(0, 0, 0, 0.10);
+    color: #0a0a0a;
+  }
+
+  /* Scrollbar matches the white page */
+  html {
+    scrollbar-color: #6b6b6b #ffffff;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  /* Stagger-fade poem lines — opacity starts at 0, animation fills forward.
+     The animationDelay is set inline per line in PoemDisplay.tsx */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .poem-line {
+    opacity: 0;
+    animation: fadeIn 0.7s ease forwards;
+  }
+}

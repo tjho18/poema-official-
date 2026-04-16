@@ -1,0 +1,37 @@
+import type { Metadata } from 'next'
+import { EB_Garamond } from 'next/font/google'
+import './globals.css'
+
+// EB Garamond: one typeface for everything — titles, body, UI.
+// The full range of weights and italic style gives us all the typographic
+// distinction we need without introducing a second font.
+const garamond = EB_Garamond({
+  subsets: ['latin'],
+  variable: '--font-garamond',
+  display: 'swap',
+  weight: ['400', '500', '600', '700', '800'],
+  style: ['normal', 'italic'],
+})
+
+export const metadata: Metadata = {
+  title: 'Poema',
+  description: 'A quiet place for poems.',
+  openGraph: {
+    siteName: 'Poema',
+    type: 'website',
+  },
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en" className={garamond.variable}>
+      <body className="bg-ink-bg text-ink-text min-h-screen antialiased">
+        {children}
+      </body>
+    </html>
+  )
+}
