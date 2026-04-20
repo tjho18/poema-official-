@@ -1,9 +1,26 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Routes that require a signed-in user. Paths matching these prefixes
+// bounce to /signin?next=<path> when unauthenticated.
+const AUTH_REQUIRED_PREFIXES = [
+  '/write',
+  '/dashboard',
+  '/settings',
+  '/following',
+  '/bookmarks',
+]
+
+// If an authenticated user has no username yet, we funnel them to onboarding.
+// These paths are allowed during that funnel so the funnel itself, auth flows,
+// and signout stay reachable.
+const ONBOARDING_ALLOWED_PREFIXES = [
+  '/onboarding',
+  '/auth',
+  '/signout',
+]
+
 export async function proxy(request: NextRequest) {
-  // We must re-create the response object whenever cookies are written,
-  // so that Set-Cookie headers propagate back to the browser.
   let response = NextResponse.next({
     request: { headers: request.headers },
   })
@@ -17,7 +34,6 @@ export async function proxy(request: NextRequest) {
           return request.cookies.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
-          // Must update both the request and response cookies
           request.cookies.set({ name, value, ...options })
           response = NextResponse.next({ request: { headers: request.headers } })
           response.cookies.set({ name, value, ...options })
@@ -31,24 +47,36 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  // Refresh the session — keeps auth tokens alive on every request
-  const { data: { session } } = await supabase.auth.getSession()
+  // Refresh the session cookie if expiring.
+  const { data: { user } } = await supabase.auth.getUser()
 
-  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
-  const isAdminRoot  = request.nextUrl.pathname === '/admin'
+  const { pathname } = request.nextUrl
+  const needsAuth = AUTH_REQUIRED_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/'))
 
-  // Protect all /admin sub-routes except /admin itself (which shows the login form)
-  if (isAdminRoute && !isAdminRoot && !session) {
-    return NextResponse.redirect(new URL('/admin', request.url))
+  if (needsAuth && !user) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/signin'
+    url.searchParams.set('next', pathname)
+    return NextResponse.redirect(url)
   }
 
-  // --- Future: subdomain detection stub ---
-  // When poet accounts ship, read this header in layouts to serve per-poet content.
-  const host = request.headers.get('host') ?? ''
-  const subdomain = host.split('.')[0]
-  const isSubdomain = host.includes('.') && subdomain !== 'www' && subdomain !== 'poema'
-  if (isSubdomain) {
-    response.headers.set('x-poet-slug', subdomain)
+  // If signed in, make sure they've picked a username before using the app.
+  if (user) {
+    const inAllowedFunnel = ONBOARDING_ALLOWED_PREFIXES.some(
+      p => pathname === p || pathname.startsWith(p + '/'),
+    )
+    if (!inAllowedFunnel) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', user.id)
+        .maybeSingle()
+      if (!profile?.username) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/onboarding/username'
+        return NextResponse.redirect(url)
+      }
+    }
   }
 
   return response
@@ -56,9 +84,8 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/admin/:path*',
-    // Also run middleware on all routes so the subdomain header is set globally.
-    // Exclude static files and Next internals for performance.
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    // Run on everything except Next internals, static assets, and the cron route
+    // (which authenticates itself via bearer token).
+    '/((?!_next/static|_next/image|favicon.ico|api/cron).*)',
   ],
 }

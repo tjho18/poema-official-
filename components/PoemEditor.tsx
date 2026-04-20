@@ -1,18 +1,19 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import type { Poem } from '@/types/poem'
 
 interface Props {
   initialData?: Poem
+  // Server action receives the FormData. The "intent" field tells it whether
+  // to save as draft or publish.
   action: (formData: FormData) => Promise<void>
-  submitLabel: string
+  editing?: boolean
 }
 
-export default function AdminPoemForm({ initialData, action, submitLabel }: Props) {
-  const [tagsInput, setTagsInput] = useState(
-    initialData?.tags.join(', ') ?? ''
-  )
+export default function PoemEditor({ initialData, action, editing = false }: Props) {
+  const [tagsInput, setTagsInput] = useState(initialData?.tags.join(', ') ?? '')
 
   return (
     <form action={action} className="space-y-7 max-w-2xl">
@@ -61,7 +62,6 @@ export default function AdminPoemForm({ initialData, action, submitLabel }: Prop
           placeholder="loneliness, love, existential"
           className="w-full bg-transparent border-b border-ink-text/30 pb-2 text-ink-text font-body text-sm focus:outline-none focus:border-ink-text transition-colors placeholder:text-ink-muted/40"
         />
-        {/* Live tag preview as italic annotations */}
         {tagsInput.trim() && (
           <div className="flex flex-wrap gap-x-3 mt-2">
             {tagsInput.split(',').map(t => t.trim()).filter(Boolean).map(tag => (
@@ -73,12 +73,27 @@ export default function AdminPoemForm({ initialData, action, submitLabel }: Prop
         )}
       </div>
 
-      <button
-        type="submit"
-        className="border border-ink-text text-ink-text font-body px-7 py-2.5 rounded text-sm tracking-wider hover:bg-ink-text hover:text-white transition-colors duration-200"
-      >
-        {submitLabel}
-      </button>
+      <div className="flex items-center gap-4 pt-4 border-t border-ink-text/10">
+        <button
+          type="submit"
+          name="intent"
+          value="draft"
+          className="border border-ink-text/30 text-ink-muted font-body px-5 py-2 rounded text-sm tracking-wider hover:border-ink-text hover:text-ink-text transition-colors duration-200"
+        >
+          Save draft
+        </button>
+        <button
+          type="submit"
+          name="intent"
+          value="publish"
+          className="border border-ink-text bg-ink-text text-white font-body px-7 py-2 rounded text-sm tracking-wider hover:opacity-80 transition-opacity duration-200"
+        >
+          {editing && initialData?.status === 'published' ? 'Save changes' : 'Publish'}
+        </button>
+        <Link href="/dashboard" className="ml-auto font-body italic text-sm text-ink-muted hover:text-ink-text transition-colors">
+          cancel
+        </Link>
+      </div>
     </form>
   )
 }

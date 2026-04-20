@@ -1,8 +1,14 @@
 import Link from 'next/link'
+import { getCurrentProfile } from '@/lib/auth'
+import UserMenu from '@/components/UserMenu'
 
 // Masthead-style navbar: thin bottom rule like a newspaper header.
-// No color, no background tint — just type on white.
-export default function NavBar() {
+// Async server component — reads the session and renders a signed-in or
+// signed-out variant accordingly.
+export default async function NavBar() {
+  const { user, profile } = await getCurrentProfile()
+  const signedIn = Boolean(user && profile?.username)
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-4 bg-white/90 backdrop-blur-sm border-b border-ink-text/10">
       <Link
@@ -12,19 +18,41 @@ export default function NavBar() {
         Poema
       </Link>
 
-      <div className="flex gap-8 text-sm text-ink-muted tracking-wider">
+      <div className="flex items-center gap-7 text-sm text-ink-muted tracking-wider">
         <Link
           href="/explore"
           className="hover:text-ink-text transition-colors duration-200"
         >
           Explore
         </Link>
-        <Link
-          href="/admin"
-          className="hover:text-ink-text transition-colors duration-200"
-        >
-          Admin
-        </Link>
+
+        {signedIn ? (
+          <>
+            <Link
+              href="/following"
+              className="hover:text-ink-text transition-colors duration-200"
+            >
+              Following
+            </Link>
+            <Link
+              href="/write"
+              className="text-ink-text border border-ink-text/30 px-3 py-1 rounded hover:border-ink-text transition-colors duration-200"
+            >
+              Write
+            </Link>
+            <UserMenu
+              username={profile!.username!}
+              displayName={profile!.display_name || profile!.username!}
+            />
+          </>
+        ) : (
+          <Link
+            href="/signin"
+            className="hover:text-ink-text transition-colors duration-200"
+          >
+            Sign in
+          </Link>
+        )}
       </div>
     </nav>
   )

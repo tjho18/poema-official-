@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import NavBar from '@/components/NavBar'
 import GradientBackground from '@/components/GradientBackground'
 import PoemCard from '@/components/PoemCard'
-import type { Poem } from '@/types/poem'
+import type { PublicPoem } from '@/types/poem'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,16 +16,18 @@ export default async function ExplorePage({ searchParams }: Props) {
   const activeTag = tag ?? ''
   const supabase = await createServerSupabaseClient()
 
-  let query = supabase.from('poems').select('*').order('created_at', { ascending: false })
-  if (activeTag) {
-    query = query.contains('tags', [activeTag])
-  }
+  let query = supabase
+    .from('public_poems')
+    .select('*')
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .order('created_at',   { ascending: false })
+
+  if (activeTag) query = query.contains('tags', [activeTag])
 
   const { data, error } = await query
-  const poems: Poem[] = error ? [] : (data ?? [])
+  const poems: PublicPoem[] = error ? [] : ((data ?? []) as PublicPoem[])
 
-  // Fetch all tags (we need the full set regardless of current filter)
-  const { data: allData } = await supabase.from('poems').select('tags')
+  const { data: allData } = await supabase.from('public_poems').select('tags')
   const allTags = [...new Set((allData ?? []).flatMap((p: { tags: string[] }) => p.tags))].sort()
 
   return (
@@ -34,10 +36,9 @@ export default async function ExplorePage({ searchParams }: Props) {
       <NavBar />
 
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="mb-12 text-center">
           <h1 className="font-display text-3xl text-ink-accent mb-3 tracking-wide">
-            All Poems by TJ Ho
+            Explore
           </h1>
           <p className="font-body text-ink-muted text-sm">
             {poems.length} {poems.length === 1 ? 'poem' : 'poems'}
@@ -45,7 +46,6 @@ export default async function ExplorePage({ searchParams }: Props) {
           </p>
         </div>
 
-        {/* Tag filter — URL-based, italic brackets style matching TagFilter component */}
         {allTags.length > 0 && (
           <div className="flex flex-wrap gap-x-6 gap-y-2 justify-center mb-12" role="group" aria-label="Filter by mood">
             <Link
@@ -76,7 +76,6 @@ export default async function ExplorePage({ searchParams }: Props) {
           </div>
         )}
 
-        {/* Grid */}
         {poems.length === 0 ? (
           <p className="text-center font-body text-ink-muted mt-20">
             {activeTag ? `No poems tagged "${activeTag}" yet.` : 'No poems yet.'}
@@ -84,7 +83,14 @@ export default async function ExplorePage({ searchParams }: Props) {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {poems.map(poem => (
-              <PoemCard key={poem.id} poem={poem} />
+              <PoemCard
+                key={poem.id}
+                poem={poem}
+                byline={{
+                  username:    poem.author_username,
+                  displayName: poem.author_display_name,
+                }}
+              />
             ))}
           </div>
         )}
