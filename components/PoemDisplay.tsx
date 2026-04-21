@@ -24,7 +24,8 @@ export default function PoemDisplay({
     if (animate) setKey(k => k + 1)
   }, [content, animate])
 
-  const lines = content.split('\n')
+  // Normalize line endings (Windows \r\n → \n) before splitting
+  const lines = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n')
 
   return (
     <article key={key} className="max-w-lg mx-auto px-6 text-center select-text">
@@ -38,7 +39,7 @@ export default function PoemDisplay({
           intentional breathing room is preserved on screen. */}
       <div className="font-body text-lg md:text-xl leading-loose text-ink-text">
         {lines.map((line, i) =>
-          line === '' ? (
+          line.trim() === '' ? (
             // Stanza break — visible gap between stanzas
             <div key={i} className="h-6" />
           ) : (
