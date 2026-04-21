@@ -10,7 +10,7 @@ export default async function NavBar() {
   const signedIn = Boolean(user && profile?.username)
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-4 bg-white/90 backdrop-blur-sm border-b border-ink-text/10">
+    <nav className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between px-4 sm:px-8 py-4 bg-white/90 backdrop-blur-sm border-b border-ink-text/10">
       <Link
         href="/"
         className="font-display italic text-xl tracking-widest text-ink-text hover:opacity-60 transition-opacity"
@@ -18,10 +18,11 @@ export default async function NavBar() {
         Poema
       </Link>
 
-      <div className="flex items-center gap-7 text-sm text-ink-muted tracking-wider">
+      <div className="flex items-center gap-5 sm:gap-7 text-sm text-ink-muted tracking-wider">
+        {/* Explore + Following — hidden on mobile, visible from sm up */}
         <Link
           href="/explore"
-          className="hover:text-ink-text transition-colors duration-200"
+          className="hidden sm:block hover:text-ink-text transition-colors duration-200"
         >
           Explore
         </Link>
@@ -30,13 +31,13 @@ export default async function NavBar() {
           <>
             <Link
               href="/following"
-              className="hover:text-ink-text transition-colors duration-200"
+              className="hidden sm:block hover:text-ink-text transition-colors duration-200"
             >
               Following
             </Link>
             <Link
               href="/write"
-              className="text-ink-text border border-ink-text/30 px-3 py-1 rounded hover:border-ink-text transition-colors duration-200"
+              className="text-ink-text border border-ink-text/30 px-3 py-1 rounded hover:border-ink-text transition-colors duration-200 text-sm"
             >
               Write
             </Link>

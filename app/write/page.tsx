@@ -55,7 +55,7 @@ export default async function WritePage() {
   }
 
   return (
-    <div className="min-h-screen px-8 py-24">
+    <div className="min-h-screen px-4 sm:px-8 pt-20 pb-16 sm:py-24">
       <NavBar />
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-5 mb-12 border-b border-ink-text/10 pb-6">

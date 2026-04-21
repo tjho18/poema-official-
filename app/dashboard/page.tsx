@@ -36,7 +36,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen px-8 py-24">
+    <div className="min-h-screen px-4 sm:px-8 pt-20 pb-16 sm:py-24">
       <NavBar />
       <div className="max-w-3xl mx-auto">
         {/* Header */}

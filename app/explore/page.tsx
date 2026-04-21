@@ -31,7 +31,7 @@ export default async function ExplorePage({ searchParams }: Props) {
   const allTags = [...new Set((allData ?? []).flatMap((p: { tags: string[] }) => p.tags))].sort()
 
   return (
-    <div className="min-h-screen px-6 py-24">
+    <div className="min-h-screen px-4 sm:px-6 pt-20 pb-16 sm:py-24">
       <GradientBackground />
       <NavBar />
 

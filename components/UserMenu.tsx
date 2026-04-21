@@ -46,6 +46,9 @@ export default function UserMenu({ username, displayName }: Props) {
 
           <MenuLink href={`/${username}`}>My page</MenuLink>
           <MenuLink href="/dashboard">Dashboard</MenuLink>
+          {/* Mobile-only nav links hidden in the top bar */}
+          <MenuLink href="/explore" className="sm:hidden">Explore</MenuLink>
+          <MenuLink href="/following" className="sm:hidden">Following</MenuLink>
           <MenuLink href="/settings">Settings</MenuLink>
 
           <form action="/auth/signout" method="post" className="border-t border-ink-text/10 mt-2 pt-1">
@@ -62,11 +65,11 @@ export default function UserMenu({ username, displayName }: Props) {
   )
 }
 
-function MenuLink({ href, children }: { href: string; children: React.ReactNode }) {
+function MenuLink({ href, children, className = '' }: { href: string; children: React.ReactNode; className?: string }) {
   return (
     <Link
       href={href}
-      className="block px-4 py-2 font-body text-sm text-ink-text hover:bg-black/[0.025] transition-colors"
+      className={`block px-4 py-2 font-body text-sm text-ink-text hover:bg-black/[0.025] transition-colors ${className}`}
     >
       {children}
     </Link>
