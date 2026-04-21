@@ -33,17 +33,24 @@ export default function PoemDisplay({
         {title}
       </h1>
 
-      {/* Poem body: regular Garamond, generous line height */}
-      <div className="font-body text-lg md:text-xl leading-loose space-y-0.5 text-ink-text">
-        {lines.map((line, i) => (
-          <p
-            key={i}
-            className={animate ? 'poem-line' : 'opacity-100'}
-            style={animate ? { animationDelay: `${i * 150}ms` } : undefined}
-          >
-            {line || '\u00A0'}
-          </p>
-        ))}
+      {/* Poem body: regular Garamond, generous line height.
+          Empty lines become stanza-break spacers so the poet's
+          intentional breathing room is preserved on screen. */}
+      <div className="font-body text-lg md:text-xl leading-loose text-ink-text">
+        {lines.map((line, i) =>
+          line === '' ? (
+            // Stanza break — visible gap between stanzas
+            <div key={i} className="h-6" />
+          ) : (
+            <p
+              key={i}
+              className={animate ? 'poem-line' : 'opacity-100'}
+              style={animate ? { animationDelay: `${i * 150}ms` } : undefined}
+            >
+              {line}
+            </p>
+          )
+        )}
       </div>
 
       {/* Tags: tiny italic annotations below the poem */}
