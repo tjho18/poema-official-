@@ -10,16 +10,21 @@ export const dynamic  = 'force-dynamic'
 export default async function SettingsPage() {
   const { user, profile } = await requireUser()
 
-  async function updateDisplayName(formData: FormData) {
+  async function updateProfile(formData: FormData) {
     'use server'
     const supabase = await createServerSupabaseClient()
     const { data: { user: me } } = await supabase.auth.getUser()
     if (!me) redirect('/signin')
 
     const displayName = (formData.get('display_name') as string).trim()
+    const bio = (formData.get('bio') as string).trim()
+
     await supabase
       .from('profiles')
-      .update({ display_name: displayName || null })
+      .update({
+        display_name: displayName || null,
+        bio: bio || null,
+      })
       .eq('id', me.id)
 
     revalidatePath('/settings')
@@ -38,7 +43,7 @@ export default async function SettingsPage() {
           <p className="font-body italic text-ink-muted text-xs mt-1">@{profile.username}</p>
         </div>
 
-        <form action={updateDisplayName} className="space-y-8">
+        <form action={updateProfile} className="space-y-8">
           <div>
             <label htmlFor="display_name" className="block font-body italic text-sm text-ink-muted mb-2">
               Display name
@@ -57,6 +62,27 @@ export default async function SettingsPage() {
             />
             <p className="mt-2 font-body text-xs text-ink-muted/60">
               If left blank, your username <span className="italic">@{profile.username}</span> is shown instead.
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="bio" className="block font-body italic text-sm text-ink-muted mb-2">
+              Bio
+              <span className="ml-2 text-ink-muted/50 not-italic text-xs">
+                a few words about you
+              </span>
+            </label>
+            <textarea
+              id="bio"
+              name="bio"
+              rows={5}
+              maxLength={300}
+              defaultValue={profile.bio ?? ''}
+              placeholder="a poet who..."
+              className="w-full bg-transparent border-b border-ink-text/30 pb-2 text-ink-text font-body italic text-sm focus:outline-none focus:border-ink-text transition-colors placeholder:text-ink-muted/30 resize-none"
+            />
+            <p className="mt-2 font-body text-xs text-ink-muted/60">
+              Max 300 characters.
             </p>
           </div>
 

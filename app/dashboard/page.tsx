@@ -15,6 +15,12 @@ export default async function DashboardPage() {
   const { user, profile } = await requireUser()
   const poems = await getMyPoems(user.id)
 
+  const supabase = await createServerSupabaseClient()
+  const { count: followerCount } = await supabase
+    .from('follows')
+    .select('*', { count: 'exact', head: true })
+    .eq('followee_id', user.id)
+
   const drafts    = poems.filter(p => p.status === 'draft')
   const scheduled = poems.filter(p => p.status === 'scheduled')
   const published = poems.filter(p => p.status === 'published')
@@ -46,6 +52,9 @@ export default async function DashboardPage() {
               {profile.display_name || profile.username}
             </h1>
             <p className="font-body italic text-ink-muted text-xs mt-0.5">your dashboard</p>
+            <p className="font-body italic text-ink-muted/60 text-xs mt-0.5">
+              {followerCount ?? 0} followers
+            </p>
           </div>
           <div className="flex items-center gap-8">
             <Link

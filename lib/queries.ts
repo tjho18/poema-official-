@@ -78,3 +78,22 @@ export async function getMyPoems(userId: string): Promise<Poem[]> {
     .order('updated_at', { ascending: false })
   return (data as Poem[]) ?? []
 }
+
+// Feed of published poems from poets the user follows.
+export async function getFollowingFeed(userId: string): Promise<PublicPoem[]> {
+  const supabase = await createServerSupabaseClient()
+  // Get followee IDs
+  const { data: follows } = await supabase
+    .from('follows')
+    .select('followee_id')
+    .eq('follower_id', userId)
+  const followeeIds = (follows ?? []).map((f: { followee_id: string }) => f.followee_id)
+  if (followeeIds.length === 0) return []
+  const { data } = await supabase
+    .from('public_poems')
+    .select('*')
+    .in('author_id', followeeIds)
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .order('created_at',   { ascending: false })
+  return (data as PublicPoem[]) ?? []
+}

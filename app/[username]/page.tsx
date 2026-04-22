@@ -1,6 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getPoetByUsername, getPoemsByPoet } from '@/lib/queries'
+import { createServerSupabaseClient } from '@/lib/supabase-server'
 import NavBar from '@/components/NavBar'
 import GradientBackground from '@/components/GradientBackground'
 import PoetHomeClient from './PoetHomeClient'
@@ -31,6 +32,29 @@ export default async function PoetLandingPage({ params }: Props) {
 
   const poems = await getPoemsByPoet(poet.id)
 
+  const supabase = await createServerSupabaseClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const currentUserId = user?.id ?? null
+
+  const viewerIsOwner = currentUserId === poet.id
+
+  // Follower count
+  const { count: followerCount } = await supabase
+    .from('follows')
+    .select('*', { count: 'exact', head: true })
+    .eq('followee_id', poet.id)
+
+  // Is current user following this poet?
+  let initialFollowing = false
+  if (currentUserId && !viewerIsOwner) {
+    const { count: followingCount } = await supabase
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('follower_id', currentUserId)
+      .eq('followee_id', poet.id)
+    initialFollowing = (followingCount ?? 0) > 0
+  }
+
   return (
     <main className="min-h-screen flex flex-col items-center relative px-6">
       <GradientBackground />
@@ -39,6 +63,11 @@ export default async function PoetLandingPage({ params }: Props) {
         poems={poems}
         username={poet.username}
         displayName={poet.display_name || poet.username}
+        bio={poet.bio ?? null}
+        poetId={poet.id}
+        viewerIsOwner={viewerIsOwner}
+        initialFollowing={initialFollowing}
+        followerCount={followerCount ?? 0}
       />
     </main>
   )
