@@ -53,7 +53,7 @@ export default async function PoemDetailPage({ params }: Props) {
           content={poem.content}
           tags={poem.tags}
           animate={false}
-          showTags={true}
+          showTags={false}
         />
 
         <p className="text-center mt-8 font-body italic text-sm text-ink-muted tracking-wider">
