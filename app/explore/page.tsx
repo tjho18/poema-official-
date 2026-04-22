@@ -35,7 +35,7 @@ export default async function ExplorePage({ searchParams }: Props) {
       <GradientBackground />
       <NavBar />
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-xl mx-auto">
         <div className="mb-12 text-center">
           <h1 className="font-display text-3xl text-ink-accent mb-3 tracking-wide">
             Explore
@@ -81,7 +81,7 @@ export default async function ExplorePage({ searchParams }: Props) {
             {activeTag ? `No poems tagged "${activeTag}" yet.` : 'No poems yet.'}
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="divide-y divide-ink-text/10">
             {poems.map(poem => (
               <PoemCard
                 key={poem.id}

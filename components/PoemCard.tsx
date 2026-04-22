@@ -44,15 +44,6 @@ export default function PoemCard({ poem, byline, href }: Props) {
         {previewLines}
       </p>
 
-      {poem.tags.length > 0 && (
-        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-5">
-          {poem.tags.map(tag => (
-            <span key={tag} className="font-body italic text-xs text-ink-muted/70">
-              [{tag}]
-            </span>
-          ))}
-        </div>
-      )}
     </Link>
   )
 }
