@@ -33,7 +33,7 @@ export default async function PoetPoemsPage({ params }: Props) {
       <GradientBackground />
       <NavBar />
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-xl mx-auto">
         {/* Header — name only, no bio per spec */}
         <div className="mb-12 text-center">
           <h1 className="font-display text-3xl text-ink-accent mb-3 tracking-wide">
@@ -47,12 +47,12 @@ export default async function PoetPoemsPage({ params }: Props) {
         {poems.length === 0 ? (
           <p className="text-center font-body text-ink-muted mt-20">No poems yet.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="divide-y divide-ink-text/10">
             {poems.map(poem => (
               <Link
                 key={poem.id}
                 href={`/${poet.username}/p/${poem.slug}`}
-                className="group block px-6 py-7 rounded hover:bg-black/[0.025] transition-colors duration-300"
+                className="group block px-6 py-7 hover:bg-black/[0.025] transition-colors duration-300"
               >
                 <h2 className="font-display italic font-semibold text-lg text-ink-text mb-4 group-hover:opacity-70 transition-opacity duration-200">
                   {poem.title}
@@ -60,15 +60,6 @@ export default async function PoetPoemsPage({ params }: Props) {
                 <p className="font-body text-ink-muted text-base leading-relaxed whitespace-pre-line line-clamp-3">
                   {poem.content.split('\n').slice(0, 3).join('\n')}
                 </p>
-                {poem.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 mt-5">
-                    {poem.tags.map(tag => (
-                      <span key={tag} className="font-body italic text-xs text-ink-muted/70">
-                        [{tag}]
-                      </span>
-                    ))}
-                  </div>
-                )}
               </Link>
             ))}
           </div>
