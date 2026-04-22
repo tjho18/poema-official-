@@ -9,7 +9,18 @@
     color: #0a0a0a;
   }
 
-  /* Scrollbar matches the white page */
+  /* Mobile: warm paper tone to reduce the clinical brightness of pure white.
+     Desktop (≥640px): pure white — works with the gradient background. */
+  body {
+    background-color: #F5F0E8;
+  }
+  @media (min-width: 640px) {
+    body {
+      background-color: #ffffff;
+    }
+  }
+
+  /* Scrollbar matches the white page on desktop */
   html {
     scrollbar-color: #6b6b6b #ffffff;
   }
