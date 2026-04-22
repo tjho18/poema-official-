@@ -6,6 +6,13 @@ import Anthropic from '@anthropic-ai/sdk'
  * publishing never fails due to a missing key, slow response, or any other issue.
  */
 export async function generateTags(title: string, content: string): Promise<string[]> {
+  // ── Diagnostic stub ──────────────────────────────────────────────────────────
+  // Temporarily returning hardcoded tags to verify the server action itself
+  // works end-to-end before re-enabling the live Anthropic call.
+  void title; void content
+  return ['stillness', 'light', 'solitude']
+  // ─────────────────────────────────────────────────────────────────────────────
+
   try {
     // Initialise inside the function so a missing API key throws here,
     // where the catch block can handle it, rather than at module-load time.
