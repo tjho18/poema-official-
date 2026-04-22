@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk'
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
+  timeout: 5000, // 5-second hard timeout — leaves room for DB insert within Vercel's 10s limit
 })
 
 /**
