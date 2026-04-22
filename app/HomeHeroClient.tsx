@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import PoemDisplay from '@/components/PoemDisplay'
+import ShareButton from '@/components/ShareButton'
 import type { PublicPoem } from '@/types/poem'
 
 interface Props {
@@ -58,13 +59,22 @@ export default function HomeHeroClient({ poems }: Props) {
         ) : null}
       </div>
 
-      <div className="mt-16">
+      <div className="flex flex-col items-center gap-5 mt-16">
         <button
           onClick={cyclePoem}
-          className="font-body italic text-xs text-ink-muted/60 hover:text-ink-muted transition-colors tracking-widest"
+          className="font-body italic text-sm text-ink-muted/60 hover:text-ink-muted transition-colors tracking-widest"
         >
           another poem
         </button>
+
+        {currentPoem?.slug && (
+          <ShareButton
+            title={currentPoem.title}
+            poet={currentPoem.author_display_name || currentPoem.author_username}
+            url={`${typeof window !== 'undefined' ? window.location.origin : ''}/${currentPoem.author_username}/p/${currentPoem.slug}`}
+            className="font-body italic text-sm text-ink-muted/60 hover:text-ink-muted transition-colors tracking-widest"
+          />
+        )}
       </div>
     </section>
   )
