@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import PoemDisplay from '@/components/PoemDisplay'
+import ShareButton from '@/components/ShareButton'
 import type { Poem } from '@/types/poem'
 
 interface Props {
@@ -56,19 +57,25 @@ export default function PoetHomeClient({ poems, username, displayName }: Props) 
         ) : null}
       </div>
 
-      <div className="mt-16">
+      <div className="flex flex-col items-center gap-5 mt-16">
         <button
           onClick={cyclePoem}
-          className="font-body italic text-xs text-ink-muted/60 hover:text-ink-muted transition-colors tracking-widest"
+          className="font-body italic text-sm text-ink-muted/60 hover:text-ink-muted transition-colors tracking-widest"
         >
           another poem
         </button>
-      </div>
 
-      <div className="mt-6">
+        {currentPoem && (
+          <ShareButton
+            title={currentPoem.title}
+            poet={displayName}
+            className="font-body italic text-sm text-ink-muted/60 hover:text-ink-muted transition-colors tracking-widest"
+          />
+        )}
+
         <Link
           href={`/${username}/poems`}
-          className="font-body italic text-xs text-ink-muted/60 hover:text-ink-muted transition-colors tracking-widest"
+          className="font-body italic text-sm text-ink-muted/60 hover:text-ink-muted transition-colors tracking-widest"
         >
           all poems →
         </Link>

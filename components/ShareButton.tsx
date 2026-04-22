@@ -5,9 +5,10 @@ import { useState } from 'react'
 interface Props {
   title: string
   poet: string
+  className?: string
 }
 
-export default function ShareButton({ title, poet }: Props) {
+export default function ShareButton({ title, poet, className }: Props) {
   const [copied, setCopied] = useState(false)
 
   async function handleShare() {
@@ -37,7 +38,7 @@ export default function ShareButton({ title, poet }: Props) {
   return (
     <button
       onClick={handleShare}
-      className="font-body italic text-xs text-ink-muted/60 hover:text-ink-muted tracking-widest transition-colors"
+      className={className ?? "font-body italic text-xs text-ink-muted/60 hover:text-ink-muted tracking-widest transition-colors"}
     >
       {copied ? 'link copied' : 'send this poem'}
     </button>
