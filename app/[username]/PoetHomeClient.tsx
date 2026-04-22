@@ -65,10 +65,11 @@ export default function PoetHomeClient({ poems, username, displayName }: Props) 
           another poem
         </button>
 
-        {currentPoem && (
+        {currentPoem?.slug && (
           <ShareButton
             title={currentPoem.title}
             poet={displayName}
+            url={`${typeof window !== 'undefined' ? window.location.origin : ''}/${username}/p/${currentPoem.slug}`}
             className="font-body italic text-sm text-ink-muted/60 hover:text-ink-muted transition-colors tracking-widest"
           />
         )}

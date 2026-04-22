@@ -6,13 +6,14 @@ interface Props {
   title: string
   poet: string
   className?: string
+  url?: string  // override URL; defaults to current page
 }
 
-export default function ShareButton({ title, poet, className }: Props) {
+export default function ShareButton({ title, poet, className, url: urlProp }: Props) {
   const [copied, setCopied] = useState(false)
 
   async function handleShare() {
-    const url  = window.location.href
+    const url  = urlProp ?? window.location.href
     const text = `"${title}" by ${poet}`
 
     // Web Share API — opens native sheet on mobile (iOS/Android)
