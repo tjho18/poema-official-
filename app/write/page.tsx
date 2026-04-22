@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireUser } from '@/lib/auth'
 import { ensureUniqueSlug } from '@/lib/slug'
+import { generateTags } from '@/lib/tags'
 import PoemEditor from '@/components/PoemEditor'
 import NavBar from '@/components/NavBar'
 
@@ -21,14 +22,13 @@ export default async function WritePage() {
 
     const title   = (formData.get('title') as string).trim()
     const content = (formData.get('content') as string)
-    const tags    = (formData.get('tags') as string)
-      .split(',')
-      .map(t => t.trim())
-      .filter(Boolean)
     const intent  = formData.get('intent') as string
 
     const slug = await ensureUniqueSlug(supabase, me.id, title)
     const isPublish = intent === 'publish'
+
+    // AI-generate tags only when publishing; drafts get an empty array
+    const tags = isPublish ? await generateTags(title, content) : []
 
     const { data: inserted } = await supabase.from('poems').insert({
       title,

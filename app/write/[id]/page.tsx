@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { requireUser } from '@/lib/auth'
 import { ensureUniqueSlug, slugify } from '@/lib/slug'
+import { generateTags } from '@/lib/tags'
 import PoemEditor from '@/components/PoemEditor'
 import NavBar from '@/components/NavBar'
 import type { Poem } from '@/types/poem'
@@ -36,12 +37,11 @@ export default async function EditPoemPage({ params }: Props) {
 
     const title   = (formData.get('title') as string).trim()
     const content = (formData.get('content') as string)
-    const tags    = (formData.get('tags') as string)
-      .split(',')
-      .map(t => t.trim())
-      .filter(Boolean)
     const intent  = formData.get('intent') as string
     const isPublish = intent === 'publish'
+
+    // Re-generate tags whenever publishing (first publish or saving changes on an already-published poem)
+    const tags = isPublish ? await generateTags(title, content) : poem!.tags
 
     // Re-slug only if title changed enough to change the slug's root.
     let slug = poem!.slug
