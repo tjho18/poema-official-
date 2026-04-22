@@ -5,6 +5,7 @@ import { getPoetByUsername, getPoemByAuthorAndSlug } from '@/lib/queries'
 import NavBar from '@/components/NavBar'
 import GradientBackground from '@/components/GradientBackground'
 import PoemDisplay from '@/components/PoemDisplay'
+import ShareButton from '@/components/ShareButton'
 
 interface Props {
   params: Promise<{ username: string; slug: string }>
@@ -66,6 +67,7 @@ export default async function PoemDetailPage({ params }: Props) {
           >
             ← all poems
           </Link>
+          <ShareButton title={poem.title} poet={displayName ?? poet.username ?? ''} />
           <Link
             href={`/${poet.username}`}
             className="font-body italic text-xs text-ink-muted/60 hover:text-ink-muted tracking-widest transition-colors"
