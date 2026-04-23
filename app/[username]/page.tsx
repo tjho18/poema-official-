@@ -38,12 +38,6 @@ export default async function PoetLandingPage({ params }: Props) {
 
   const viewerIsOwner = currentUserId === poet.id
 
-  // Follower count
-  const { count: followerCount } = await supabase
-    .from('follows')
-    .select('*', { count: 'exact', head: true })
-    .eq('followee_id', poet.id)
-
   // Is current user following this poet?
   let initialFollowing = false
   if (currentUserId && !viewerIsOwner) {
@@ -67,7 +61,6 @@ export default async function PoetLandingPage({ params }: Props) {
         poetId={poet.id}
         viewerIsOwner={viewerIsOwner}
         initialFollowing={initialFollowing}
-        followerCount={followerCount ?? 0}
       />
     </main>
   )
