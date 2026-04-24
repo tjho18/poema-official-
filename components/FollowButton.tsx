@@ -3,17 +3,18 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 
+type DisplayState = 'follow' | 'followed' | 'following'
+
 interface Props {
   poetId: string
   initialFollowing: boolean
   followerCount: number
 }
 
-export default function FollowButton({ poetId, initialFollowing, followerCount }: Props) {
-  const [following, setFollowing] = useState(initialFollowing)
-  const [count, setCount] = useState(followerCount)
-  const [loading, setLoading] = useState(false)
-  const [userId, setUserId] = useState<string | null | undefined>(undefined)
+export default function FollowButton({ poetId, initialFollowing }: Props) {
+  const [display, setDisplay]   = useState<DisplayState>(initialFollowing ? 'following' : 'follow')
+  const [loading, setLoading]   = useState(false)
+  const [userId, setUserId]     = useState<string | null | undefined>(undefined)
 
   useEffect(() => {
     const supabase = createClient()
@@ -21,70 +22,75 @@ export default function FollowButton({ poetId, initialFollowing, followerCount }
       const me = data.user?.id ?? null
       setUserId(me)
       if (!me) return
-      // Re-check follow state
       supabase
         .from('follows')
         .select('follower_id', { count: 'exact', head: true })
         .eq('follower_id', me)
         .eq('followee_id', poetId)
         .then(({ count: c }) => {
-          setFollowing((c ?? 0) > 0)
+          setDisplay((c ?? 0) > 0 ? 'following' : 'follow')
         })
     })
   }, [poetId])
 
-  // Still loading auth state
+  // Still resolving auth
   if (userId === undefined) return null
 
-  // Not logged in: show link to signin
+  // Not logged in — quiet link to sign in
   if (userId === null) {
     return (
-      <span className="font-body italic text-sm text-ink-muted">
-        <Link href="/signin" className="hover:text-ink-text transition-colors">
-          follow
-        </Link>
-        <span className="ml-2 text-ink-muted/50 text-xs">{count}</span>
-      </span>
+      <Link
+        href="/signin"
+        className="font-body italic text-sm text-ink-muted/60 hover:text-ink-text transition-colors tracking-widest"
+      >
+        + follow
+      </Link>
     )
   }
 
-  // Don't render for own page — handled by parent, but guard here too
+  // Own page — parent guards this but double-check
   if (userId === poetId) return null
 
   async function toggle() {
     if (loading || !userId) return
     setLoading(true)
     const supabase = createClient()
-    if (following) {
+    const isFollowing = display === 'following'
+
+    if (isFollowing) {
       await supabase
         .from('follows')
         .delete()
         .eq('follower_id', userId)
         .eq('followee_id', poetId)
-      setFollowing(false)
-      setCount(c => Math.max(0, c - 1))
+      setDisplay('follow')
     } else {
       await supabase
         .from('follows')
         .insert({ follower_id: userId, followee_id: poetId })
-      setFollowing(true)
-      setCount(c => c + 1)
+      // Brief "followed ✓" flash before settling on "following"
+      setDisplay('followed')
+      setTimeout(() => setDisplay('following'), 1200)
     }
     setLoading(false)
   }
 
+  const label =
+    display === 'following' ? 'following'
+    : display === 'followed' ? 'followed ✓'
+    : '+ follow'
+
   return (
-    <span className="inline-flex items-center gap-2">
-      <button
-        onClick={toggle}
-        disabled={loading}
-        className={`font-body italic text-sm transition-colors ${
-          following ? 'text-ink-text' : 'text-ink-muted hover:text-ink-text'
-        }`}
-      >
-        {following ? 'following' : 'follow'}
-      </button>
-      <span className="font-body text-xs text-ink-muted/50">{count}</span>
-    </span>
+    <button
+      onClick={toggle}
+      disabled={loading}
+      className={`font-body italic text-sm tracking-widest transition-colors duration-200 ${
+        display === 'follow'
+          ? 'text-ink-muted/60 hover:text-ink-text'
+          : 'text-ink-muted'
+      }`}
+    >
+      {label}
+    </button>
   )
 }
